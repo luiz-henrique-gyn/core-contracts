@@ -69,11 +69,11 @@ contract BEP20 is Context, IBEP20, Ownable {
     uint256 private dropLiqAmount = 10000000 * 10 ** 18;
     uint256 private marketingAmount = 1000000 * 10 ** 18;
 
-    address private airdropAddress = ;
+    address private airdropAddress = 0x0000a97418E2161634c90c8a06a2E18000223B95;
     
-    address private liquiditylockAddress = ;
+    address private liquiditylockAddress = 0x7448343B38a224C639c81767095DCF7dBC7A2d3d;
     
-    address private marketingAddress = ;
+    address private marketingAddress = 0xB59448fBa4D9d8241a403e9Da7da11856EaaA0B1;
     
     // Events
 
@@ -194,13 +194,6 @@ contract BEP20 is Context, IBEP20, Ownable {
         return true;
     }
 
-    function clearETH() public onlyOperator() {
-        address payable _owner = msg.sender;
-        _owner.transfer(address(this).balance);
-    }
-    fallback() external payable {
-
-    }
     //
 
         /** @dev Creates `amount` tokens and assigns them to `account`, increasing
@@ -254,8 +247,6 @@ contract BEP20 is Context, IBEP20, Ownable {
     }
     
     
-    receive() external payable {}
-
     function _approve(address owner, address spender, uint256 amount) private {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");

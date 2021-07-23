@@ -31,7 +31,7 @@ You can find the audit on this official link:
 
 #### Token Contracts
 - ZaifToken: [0x280C3Fc949b1a1D7a470067cA6F7b48b3CB219c5](https://bscscan.com/token/0x280C3Fc949b1a1D7a470067cA6F7b48b3CB219c5)
-- FarmToken: [](https://bscscan.com/token/)
+- ZafiraToken: [](https://bscscan.com/token/)
 
 #### Farm Contracts
 - MasterZai: [](https://bscscan.com/address/)

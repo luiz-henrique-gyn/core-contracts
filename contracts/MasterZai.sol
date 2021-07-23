@@ -73,17 +73,17 @@ abstract contract ReentrancyGuard {
     }
 }
 
-import "./ZaifToken.sol";
+import "./ZafiraToken.sol";
 
 
 
 // import "@nomiclabs/buidler/console.sol";
 
-// MasterZai is the master of ZAIF 
+// MasterZai is the master of ZAFI 
 // He can make Zaif and he is a fair guy.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once ZAIF is sufficiently
+// will be transferred to a governance smart contract once ZAFI is sufficiently
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
@@ -96,13 +96,13 @@ contract MasterZai is Ownable, ReentrancyGuard {
         uint256 amount;     // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of ZAIFs
+        // We do some fancy math here. Basically, any point in time, the amount of ZAFIs
         // entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accZaifPerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accZafiPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accZaifPerShare` (and `lastRewardBlock`) gets updated.
+        //   1. The pool's `accZafiPerShare` (and `lastRewardBlock`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -111,15 +111,15 @@ contract MasterZai is Ownable, ReentrancyGuard {
     // Info of each pool.
     struct PoolInfo {
         IBEP20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. ZAIFs to distribute per block.
-        uint256 lastRewardBlock;  // Last block number that ZAIFs distribution occurs.
-        uint256 accZaifPerShare; // Accumulated ZAIFs per share, times 1e12. See below.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. ZAFIs to distribute per block.
+        uint256 lastRewardBlock;  // Last block number that ZAFIs distribution occurs.
+        uint256 accZafiPerShare; // Accumulated ZAFIs per share, times 1e12. See below.
         uint16 depositFeeBP;      // Deposit fee in basis points
         uint256 totalLp;            // Total Token in Pool
     }
 
-    // The ZAIF TOKEN!
-    ZaifToken public zaif;
+    // The ZAFI TOKEN!
+    ZafiraToken public zafi;
 
     //On Distribution Dev address.
     address public devaddr;
@@ -127,11 +127,11 @@ contract MasterZai is Ownable, ReentrancyGuard {
     address public feeAddress;
     //On Distribution Marketing Address
     address public marktAddress;
-    //On Distribution Salary Address
-    address public salaryAddress; 
-    // ZAIF tokens created per block.
-    uint256 public zaifPerBlock;
-    // Bonus muliplier for early zaif makers.
+    //On Distribution Staff team Address
+    address public staffAddress; 
+    // ZAFI tokens created per block.
+    uint256 public zafiPerBlock;
+    // Bonus muliplier for early zafi makers.
     uint256 public BONUS_MULTIPLIER = 1;
 
     
@@ -139,13 +139,13 @@ contract MasterZai is Ownable, ReentrancyGuard {
     uint16 public constant blockMktFee = 1000;
 
     // 4% for salary on distribution
-    uint16 public constant blockSalaryFee = 400;
+    uint16 public constant blockStaffFee = 400;
 
     // 1% for development on distribution
     uint16 public constant blockDevFee = 100;
 
     uint256 currentDevFee = 0;
-    uint256 currentSalaryFee = 0;
+    uint256 currentStaffFee = 0;
     uint256 currentMarketingFee = 0;
 
 
@@ -155,10 +155,10 @@ contract MasterZai is Ownable, ReentrancyGuard {
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when ZAIF mining starts.
+    // The block number when ZAFI mining starts.
     uint256 public startBlock;
-    // Total ZAIF in ZAIF Pools (can be multiple pools)
-    uint256 public totalZaifInPools = 0;
+    // Total ZAFI in ZAFI Pools (can be multiple pools)
+    uint256 public totalZafiInPools = 0;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -166,22 +166,22 @@ contract MasterZai is Ownable, ReentrancyGuard {
     event EmissionRateUpdated(address indexed caller, uint256 previousAmount, uint256 newAmount);
 
     constructor(
-        ZaifToken _zaif,
+        ZafiraToken _zafi,
         address _devaddr,
         address _feeAddress,
         address _marktAddress,
-        address _salaryAddress,
-        uint256 _zaifPerBlock,
+        address _staffAddress,
+        uint256 _zafiPerBlock,
         uint256 _startBlock,
         uint256 _multiplier
 
     ) public {
-        zaif = _zaif;
+        zafi = _zafi;
         devaddr = _devaddr;
         feeAddress = _feeAddress;
         marktAddress = _marktAddress;
-        salaryAddress = _salaryAddress;
-        zaifPerBlock = _zaifPerBlock;
+        staffAddress = _staffAddress;
+        zafiPerBlock = _zafiPerBlock;
         startBlock = _startBlock;
         BONUS_MULTIPLIER = _multiplier;
 
@@ -215,16 +215,16 @@ contract MasterZai is Ownable, ReentrancyGuard {
     }
 
 
-    //actual Zaif left in MasterChef can be used in rewards, must excluding all in zaif pools
+    //actual Zaif left in MasterChef can be used in rewards, must excluding all in zafi pools
     //this function is for safety check 
     function remainRewards() public view returns (uint256) {
-        return zaif.balanceOf(address(this)).sub(totalZaifInPools);
+        return zafi.balanceOf(address(this)).sub(totalZafiInPools);
     }
 
     //All Zaifs that are not in pools or masterchef reward stack
     function getCirculatingSupply() external view returns(uint256) {
-        uint256 tSupply = zaif.totalSupply();
-        uint256 zaifBalance = zaif.balanceOf(address(this));
+        uint256 tSupply = zafi.totalSupply();
+        uint256 zaifBalance = zafi.balanceOf(address(this));
 
         return tSupply.sub(zaifBalance);    
     }
@@ -243,13 +243,13 @@ contract MasterZai is Ownable, ReentrancyGuard {
         lpToken: _lpToken,
         allocPoint: _allocPoint,
         lastRewardBlock: lastRewardBlock,
-        accZaifPerShare: 0,
+        accZafiPerShare: 0,
         depositFeeBP: _depositFeeBP,
         totalLp : 0
         }));
     }
 
-    // Update the given pool's ZAIF allocation point. Can only be called by the owner.
+    // Update the given pool's ZAFI allocation point. Can only be called by the owner.
     function set(uint256 _pid, uint256 _allocPoint, uint16 _depositFeeBP, bool _withUpdate) public onlyOwner {
         require(_depositFeeBP <= 10000, "set: invalid deposit fee basis points");
         if (_withUpdate) {
@@ -266,39 +266,39 @@ contract MasterZai is Ownable, ReentrancyGuard {
         return _to.sub(_from).mul(BONUS_MULTIPLIER);
     }
 
-    // View function to see pending ZAIFs on frontend.
-    function pendingZaif(uint256 _pid, address _user) external view returns (uint256) {
+    // View function to see pending ZAFIs on frontend.
+    function pendingZafi(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accZaifPerShare = pool.accZaifPerShare;
+        uint256 accZafiPerShare = pool.accZafiPerShare;
         //uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         uint256 lpSupply = pool.totalLp;
 
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 zaifReward = multiplier.mul(zaifPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            uint256 totalRewardFees = zaifReward.mul(1500).div(10000);
-            uint256 zaifRewardUsers = zaifReward.sub(totalRewardFees);
+            uint256 zafiReward = multiplier.mul(zafiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            uint256 totalRewardFees = zafiReward.mul(1500).div(10000);
+            uint256 zafiRewardUsers = zafiReward.sub(totalRewardFees);
 
-            uint256 totalminted = zaif.totalMinted();
+            uint256 totalminted = zafi.totalMinted();
              
-        if(totalminted >= 170000000000000000000000000){
+        if(totalminted >= 159000000000000000000000000){
          
-            accZaifPerShare = accZaifPerShare;
+            accZafiPerShare = accZafiPerShare;
 
             }else{
-                accZaifPerShare = accZaifPerShare.add(zaifRewardUsers.mul(1e12).div(lpSupply));
+                accZafiPerShare = accZafiPerShare.add(zafiRewardUsers.mul(1e12).div(lpSupply));
             }
 
         }
   
-         return user.amount.mul(accZaifPerShare).div(1e12).sub(user.rewardDebt);
+         return user.amount.mul(accZafiPerShare).div(1e12).sub(user.rewardDebt);
 
     }
 
-        // View function to see all locked ZAIFs on frontend.
-        function lockedZaif() external view returns (uint256) {
-            return totalZaifInPools;
+        // View function to see all locked ZAFIs on frontend.
+        function lockedZafi() external view returns (uint256) {
+            return totalZafiInPools;
         }
 
     // Update reward variables for all pools. Be careful of gas spending! 
@@ -327,48 +327,48 @@ contract MasterZai is Ownable, ReentrancyGuard {
         }
 
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 zaifReward = multiplier.mul(zaifPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        uint256 zafiReward = multiplier.mul(zafiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
     
-        uint256 totalRewardFees = zaifReward.mul(1500).div(10000);
+        uint256 totalRewardFees = zafiReward.mul(1500).div(10000);
 
         //Total - 15% fees
-        uint256 zaifRewardUsers = zaifReward.sub(totalRewardFees);
+        uint256 zafiRewardUsers = zafiReward.sub(totalRewardFees);
        
-        uint256 totalminted = zaif.totalMinted();
+        uint256 totalminted = zafi.totalMinted();
        
-        if(totalminted >= 170000000000000000000000000){
+        if(totalminted >= 159000000000000000000000000){
          
-            if(currentDevFee > 0 || currentSalaryFee > 0 || currentMarketingFee > 0){
+            if(currentDevFee > 0 || currentStaffFee > 0 || currentMarketingFee > 0){
 
-             safeZaifTransfer(devaddr,currentDevFee);
-             safeZaifTransfer(salaryAddress,currentSalaryFee);
-             safeZaifTransfer(marktAddress,currentMarketingFee);
+             safeZafiTransfer(devaddr,currentDevFee);
+             safeZafiTransfer(staffAddress,currentStaffFee);
+             safeZafiTransfer(marktAddress,currentMarketingFee);
 
             }
   
-            pool.accZaifPerShare = pool.accZaifPerShare;
+            pool.accZafiPerShare = pool.accZafiPerShare;
 
             currentDevFee = 0;
             currentMarketingFee = 0;
-            currentSalaryFee = 0;
+            currentStaffFee = 0;
 
         }else{
              
-             zaif.mint(address(this),zaifReward);
+             zafi.mint(address(this),zafiReward);
 
                 if(currentDevFee > 1100000000000000000000){
                 
-                    safeZaifTransfer(devaddr,currentDevFee);
+                    safeZafiTransfer(devaddr,currentDevFee);
                     currentDevFee = 0;
 
-                } else if(currentSalaryFee > 1100000000000000000000){
+                } else if(currentStaffFee > 1100000000000000000000){
                     
-                    safeZaifTransfer(salaryAddress,currentSalaryFee);
-                    currentSalaryFee = 0;
+                    safeZafiTransfer(staffAddress,currentStaffFee);
+                    currentStaffFee = 0;
 
                 } else if(currentMarketingFee > 2000000000000000000000){
                     
-                    safeZaifTransfer(marktAddress,currentMarketingFee);
+                    safeZafiTransfer(marktAddress,currentMarketingFee);
                     currentMarketingFee = 0;
 
                 }
@@ -376,21 +376,21 @@ contract MasterZai is Ownable, ReentrancyGuard {
              }
 
             //1% dev fee
-            currentDevFee = currentDevFee.add(zaifReward.mul(blockDevFee).div(10000));
+            currentDevFee = currentDevFee.add(zafiReward.mul(blockDevFee).div(10000));
 
-            //4% salary fee
-            currentSalaryFee = currentSalaryFee.add(zaifReward.mul(blockSalaryFee).div(10000));
+            //4% staff fee
+            currentStaffFee = currentStaffFee.add(zafiReward.mul(blockStaffFee).div(10000));
             
             //10% marketing fee
-            currentMarketingFee = currentMarketingFee.add(zaifReward.div(10));
+            currentMarketingFee = currentMarketingFee.add(zafiReward.div(10));
  
-            pool.accZaifPerShare = pool.accZaifPerShare.add(zaifRewardUsers.mul(1e12).div(pool.totalLp));
+            pool.accZafiPerShare = pool.accZafiPerShare.add(zafiRewardUsers.mul(1e12).div(pool.totalLp));
             pool.lastRewardBlock = block.number;
 
    }         
         
 
-    // Deposit LP tokens to MasterZai for ZAIF allocation.
+    // Deposit LP tokens to MasterZai for ZAFI allocation.
     function deposit(uint256 _pid, uint256 _amount) public nonReentrant {
         require(block.number >= startBlock, "MasterChef:: Can not deposit before farm start");
 
@@ -402,14 +402,14 @@ contract MasterZai is Ownable, ReentrancyGuard {
         
 
         if (user.amount > 0) {
-            uint256 pending = user.amount.mul(pool.accZaifPerShare).div(1e12).sub(user.rewardDebt);
+            uint256 pending = user.amount.mul(pool.accZafiPerShare).div(1e12).sub(user.rewardDebt);
             if(pending > 0) {
                 uint256 currentRewardBalance = remainRewards();
                 if(currentRewardBalance > 0) {
                     if(pending > currentRewardBalance) {
-                        safeZaifTransfer(msg.sender, currentRewardBalance);
+                        safeZafiTransfer(msg.sender, currentRewardBalance);
                     } else {
-                        safeZaifTransfer(msg.sender, pending);
+                        safeZafiTransfer(msg.sender, pending);
                     }
                 }
             }
@@ -421,14 +421,13 @@ contract MasterZai is Ownable, ReentrancyGuard {
 
                 uint256 depositFee = _amount.mul(pool.depositFeeBP).div(10000);
 
-                if (address(pool.lpToken) == address(zaif)) {
-                    totalZaifInPools = totalZaifInPools.add(_amount).sub(depositFee);
-                    zaif.transferFrom(address(msg.sender), address(this), _amount);
-                    zaif.transfer(feeAddress, depositFee);
-                } else{
-                    pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
-                    pool.lpToken.safeTransfer(feeAddress, depositFee);
-                }
+                if (address(pool.lpToken) == address(zafi)) {
+                    totalZafiInPools = totalZafiInPools.add(_amount).sub(depositFee);   
+                } 
+
+                pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+                pool.lpToken.safeTransfer(feeAddress, depositFee);
+
                 user.amount = user.amount.add(_amount).sub(depositFee);
                 pool.totalLp = pool.totalLp.add(_amount).sub(depositFee);
 
@@ -436,16 +435,16 @@ contract MasterZai is Ownable, ReentrancyGuard {
                 user.amount = user.amount.add(_amount);
                 pool.totalLp = pool.totalLp.add(_amount);
 
-                if (address(pool.lpToken) == address(zaif)) {
-                    totalZaifInPools = totalZaifInPools.add(_amount);
-                    zaif.transferFrom(address(msg.sender), address(this), _amount);
-                }else{
-                    pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
-                }                
+                if (address(pool.lpToken) == address(zafi)) {
+                    totalZafiInPools = totalZafiInPools.add(_amount);
+                }
+
+                pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+                                
            }
         }
 
-        user.rewardDebt = user.amount.mul(pool.accZaifPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accZafiPerShare).div(1e12);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
@@ -462,34 +461,35 @@ contract MasterZai is Ownable, ReentrancyGuard {
         updatePool(_pid);      
         
 
-        uint256 pending = user.amount.mul(pool.accZaifPerShare).div(1e12).sub(user.rewardDebt);
+        uint256 pending = user.amount.mul(pool.accZafiPerShare).div(1e12).sub(user.rewardDebt);
             if(pending > 0) {
                 uint256 currentRewardBalance = remainRewards();
+                //additional checkings
                 if(currentRewardBalance > 0) {
                     if(pending > currentRewardBalance) {
-                        safeZaifTransfer(msg.sender, currentRewardBalance);
+                        safeZafiTransfer(msg.sender, currentRewardBalance);
                     } else {
-                        safeZaifTransfer(msg.sender, pending);
+                        safeZafiTransfer(msg.sender, pending);
                     }
                 }
             }
             
         if(_amount > 0) {
                 
-             if (address(pool.lpToken) == address(zaif)) {
+             if (address(pool.lpToken) == address(zafi)) {
       
-                 uint256 zaifBal = zaif.balanceOf(address(this));
+                 uint256 zafiBal = zafi.balanceOf(address(this));
 
-                 require(_amount <= zaifBal,'withdraw: not good');    
+                 require(_amount <= zafiBal,'withdraw: not good');    
 
-                if(_amount >= totalZaifInPools){
-                    totalZaifInPools = 0;
+                if(_amount >= totalZafiInPools){
+                    totalZafiInPools = 0;
                 }else{
-                    require(totalZaifInPools >= _amount,'amount bigger than pool wut?');
-                    totalZaifInPools = totalZaifInPools.sub(_amount);
+                    require(totalZafiInPools >= _amount,'amount bigger than pool wut?');
+                    totalZafiInPools = totalZafiInPools.sub(_amount);
                 }  
 
-                zaif.transfer(address(msg.sender), _amount);
+                pool.lpToken.safeTransfer(address(msg.sender), _amount);
                 
             } else {
                 pool.lpToken.safeTransfer(address(msg.sender), _amount);
@@ -498,7 +498,7 @@ contract MasterZai is Ownable, ReentrancyGuard {
         
         user.amount = user.amount.sub(_amount);
         pool.totalLp = pool.totalLp.sub(_amount);
-        user.rewardDebt = user.amount.mul(pool.accZaifPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accZafiPerShare).div(1e12);
         
         emit Withdraw(msg.sender, _pid, _amount);
 
@@ -512,20 +512,20 @@ contract MasterZai is Ownable, ReentrancyGuard {
         uint256 amount = user.amount;
         require(pool.totalLp >= amount, "EmergencyWithdraw: Pool total LP not enough");
 
-        if (address(pool.lpToken) == address(zaif)) {
+        if (address(pool.lpToken) == address(zafi)) {
           
-            uint256 zaifBal = zaif.balanceOf(address(this));
+            uint256 zafiBal = zafi.balanceOf(address(this));
 
-            require(amount <= zaifBal,'withdraw: not good'); 
+            require(amount <= zafiBal,'withdraw: not good'); 
 
-            if(amount >= totalZaifInPools){
-                totalZaifInPools = 0;
+            if(amount >= totalZafiInPools){
+                totalZafiInPools = 0;
             }else{
-                require(totalZaifInPools >= amount,'amount bigger than pool wut?');
-                totalZaifInPools = totalZaifInPools.sub(amount);
+                require(totalZafiInPools >= amount,'amount bigger than pool wut?');
+                totalZafiInPools = totalZafiInPools.sub(amount);
             }  
 
-            zaif.transfer(address(msg.sender), amount);
+            pool.lpToken.safeTransfer(address(msg.sender), amount);
 
         }else{ 
             pool.lpToken.safeTransfer(address(msg.sender), amount);
@@ -540,24 +540,24 @@ contract MasterZai is Ownable, ReentrancyGuard {
     }
 
     function getPoolInfo(uint256 _pid) public view
-    returns(address lpToken, uint256 allocPoint, uint256 lastRewardBlock, uint256 accZaifPerShare, uint16 depositFeeBP, uint256 totalLp) {
+    returns(address lpToken, uint256 allocPoint, uint256 lastRewardBlock, uint256 accZafiPerShare, uint16 depositFeeBP, uint256 totalLp) {
         return (address(poolInfo[_pid].lpToken),
              poolInfo[_pid].allocPoint,
              poolInfo[_pid].lastRewardBlock,
-             poolInfo[_pid].accZaifPerShare,
+             poolInfo[_pid].accZafiPerShare,
              poolInfo[_pid].depositFeeBP,
              poolInfo[_pid].totalLp);
     }
 
-    // Safe zaif transfer function, just in case if rounding error causes pool to not have enough ZAIFs.
-    function safeZaifTransfer(address _to, uint256 _amount) internal {
-        if(zaif.balanceOf(address(this)) > totalZaifInPools){
-            //zaifBal = total zaif in MasterChef - total zaif in zaif pools, this will make sure that MasterChef never transfer rewards from deposited zaif pools
-            uint256 zaifBal = zaif.balanceOf(address(this)).sub(totalZaifInPools);
-            if (_amount >= zaifBal) {
-                zaif.transfer(_to, zaifBal);
+    // Safe zafi transfer function, just in case if rounding error causes pool to not have enough ZAFIs.
+    function safeZafiTransfer(address _to, uint256 _amount) internal {
+        if(zafi.balanceOf(address(this)) > totalZafiInPools){
+            //zafiBal = total zafi in MasterChef - total zafi in zafi pools, this will make sure that MasterChef never transfer rewards from deposited zafi pools
+            uint256 zafiBal = zafi.balanceOf(address(this)).sub(totalZafiInPools);
+            if (_amount >= zafiBal) {
+                zafi.transfer(_to, zafiBal);
             } else if (_amount > 0) {
-                zaif.transfer(_to, _amount);
+                zafi.transfer(_to, _amount);
             }
         }
     }
@@ -568,16 +568,17 @@ contract MasterZai is Ownable, ReentrancyGuard {
         devaddr = _devaddr;
     }
 
+     //deposit fee in pools update
      function setFeeAddress(address _feeAddress) public {
         require(msg.sender == feeAddress, "setFeeAddress: FORBIDDEN");
         feeAddress = _feeAddress;
     }
 
     // Pancake has to add hidden dummy pools in order to alter the emission, here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _zaifPerBlock) public onlyOwner {
+    function updateEmissionRate(uint256 _zafiPerBlock) public onlyOwner {
         massUpdatePools();
-        emit EmissionRateUpdated(msg.sender, zaifPerBlock, _zaifPerBlock);
-        zaifPerBlock = _zaifPerBlock;
+        emit EmissionRateUpdated(msg.sender, zafiPerBlock, _zafiPerBlock);
+        zafiPerBlock = _zafiPerBlock;
     }
 
 }
