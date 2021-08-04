@@ -69,9 +69,9 @@ contract BEP20 is Context, IBEP20, Ownable {
     uint256 private dropLiqAmount = 10000000 * 10 ** 18;
     uint256 private marketingAmount = 1000000 * 10 ** 18;
 
-    address private airdropAddress = 0x0000a97418E2161634c90c8a06a2E18000223B95;
+    address private airdropAddress = 0x7448343B38a224C639c81767095DCF7dBC7A2d3d;
     
-    address private liquiditylockAddress = 0x7448343B38a224C639c81767095DCF7dBC7A2d3d;
+    address private liquiditylockAddress = 0x0000a97418E2161634c90c8a06a2E18000223B95;
     
     address private marketingAddress = 0xB59448fBa4D9d8241a403e9Da7da11856EaaA0B1;
     

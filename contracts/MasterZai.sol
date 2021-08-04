@@ -79,11 +79,11 @@ import "./ZafiraToken.sol";
 
 // import "@nomiclabs/buidler/console.sol";
 
-// MasterZai is the master of ZAFI 
+// MasterZai is the master of ZFAI 
 // He can make Zaif and he is a fair guy.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once ZAFI is sufficiently
+// will be transferred to a governance smart contract once ZFAI is sufficiently
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
@@ -96,13 +96,13 @@ contract MasterZai is Ownable, ReentrancyGuard {
         uint256 amount;     // How many LP tokens the user has provided.
         uint256 rewardDebt; // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of ZAFIs
+        // We do some fancy math here. Basically, any point in time, the amount of ZFAIs
         // entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accZafiPerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accZfaiPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accZafiPerShare` (and `lastRewardBlock`) gets updated.
+        //   1. The pool's `accZfaiPerShare` (and `lastRewardBlock`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -111,15 +111,15 @@ contract MasterZai is Ownable, ReentrancyGuard {
     // Info of each pool.
     struct PoolInfo {
         IBEP20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. ZAFIs to distribute per block.
-        uint256 lastRewardBlock;  // Last block number that ZAFIs distribution occurs.
-        uint256 accZafiPerShare; // Accumulated ZAFIs per share, times 1e12. See below.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. ZFAIs to distribute per block.
+        uint256 lastRewardBlock;  // Last block number that ZFAIs distribution occurs.
+        uint256 accZfaiPerShare; // Accumulated ZFAIs per share, times 1e12. See below.
         uint16 depositFeeBP;      // Deposit fee in basis points
         uint256 totalLp;            // Total Token in Pool
     }
 
-    // The ZAFI TOKEN!
-    ZafiraToken public zafi;
+    // The ZFAI TOKEN!
+    ZafiraToken public zfai;
 
     //On Distribution Dev address.
     address public devaddr;
@@ -129,16 +129,16 @@ contract MasterZai is Ownable, ReentrancyGuard {
     address public marktAddress;
     //On Distribution Staff team Address
     address public staffAddress; 
-    // ZAFI tokens created per block.
-    uint256 public zafiPerBlock;
-    // Bonus muliplier for early zafi makers.
+    // ZFAI tokens created per block.
+    uint256 public zfaiPerBlock;
+    // Bonus muliplier for early zfai makers.
     uint256 public BONUS_MULTIPLIER = 1;
 
     
     // 10% for Marketing on distribution
     uint16 public constant blockMktFee = 1000;
 
-    // 4% for salary on distribution
+    // 4% for staff on distribution
     uint16 public constant blockStaffFee = 400;
 
     // 1% for development on distribution
@@ -155,10 +155,10 @@ contract MasterZai is Ownable, ReentrancyGuard {
     mapping (uint256 => mapping (address => UserInfo)) public userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when ZAFI mining starts.
+    // The block number when ZFAI mining starts.
     uint256 public startBlock;
-    // Total ZAFI in ZAFI Pools (can be multiple pools)
-    uint256 public totalZafiInPools = 0;
+    // Total ZFAI in ZFAI Pools (can be multiple pools)
+    uint256 public totalZfaiInPools = 0;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -166,22 +166,22 @@ contract MasterZai is Ownable, ReentrancyGuard {
     event EmissionRateUpdated(address indexed caller, uint256 previousAmount, uint256 newAmount);
 
     constructor(
-        ZafiraToken _zafi,
+        ZafiraToken _zfai,
         address _devaddr,
         address _feeAddress,
         address _marktAddress,
         address _staffAddress,
-        uint256 _zafiPerBlock,
+        uint256 _zfaiPerBlock,
         uint256 _startBlock,
         uint256 _multiplier
 
     ) public {
-        zafi = _zafi;
+        zfai = _zfai;
         devaddr = _devaddr;
         feeAddress = _feeAddress;
         marktAddress = _marktAddress;
         staffAddress = _staffAddress;
-        zafiPerBlock = _zafiPerBlock;
+        zfaiPerBlock = _zfaiPerBlock;
         startBlock = _startBlock;
         BONUS_MULTIPLIER = _multiplier;
 
@@ -215,18 +215,18 @@ contract MasterZai is Ownable, ReentrancyGuard {
     }
 
 
-    //actual Zaif left in MasterChef can be used in rewards, must excluding all in zafi pools
+    //actual Zaif left in MasterChef can be used in rewards, must excluding all in zfai pools
     //this function is for safety check 
     function remainRewards() public view returns (uint256) {
-        return zafi.balanceOf(address(this)).sub(totalZafiInPools);
+        return zfai.balanceOf(address(this)).sub(totalZfaiInPools);
     }
 
     //All Zaifs that are not in pools or masterchef reward stack
     function getCirculatingSupply() external view returns(uint256) {
-        uint256 tSupply = zafi.totalSupply();
-        uint256 zaifBalance = zafi.balanceOf(address(this));
+        uint256 tSupply = zfai.totalSupply();
+        uint256 zfaiBalance = zfai.balanceOf(address(this));
 
-        return tSupply.sub(zaifBalance);    
+        return tSupply.sub(zfaiBalance);    
     }
 
 
@@ -243,13 +243,13 @@ contract MasterZai is Ownable, ReentrancyGuard {
         lpToken: _lpToken,
         allocPoint: _allocPoint,
         lastRewardBlock: lastRewardBlock,
-        accZafiPerShare: 0,
+        accZfaiPerShare: 0,
         depositFeeBP: _depositFeeBP,
         totalLp : 0
         }));
     }
 
-    // Update the given pool's ZAFI allocation point. Can only be called by the owner.
+    // Update the given pool's ZFAI allocation point. Can only be called by the owner.
     function set(uint256 _pid, uint256 _allocPoint, uint16 _depositFeeBP, bool _withUpdate) public onlyOwner {
         require(_depositFeeBP <= 10000, "set: invalid deposit fee basis points");
         if (_withUpdate) {
@@ -266,39 +266,39 @@ contract MasterZai is Ownable, ReentrancyGuard {
         return _to.sub(_from).mul(BONUS_MULTIPLIER);
     }
 
-    // View function to see pending ZAFIs on frontend.
-    function pendingZafi(uint256 _pid, address _user) external view returns (uint256) {
+    // View function to see pending ZFAIs on frontend.
+    function pendingZfai(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accZafiPerShare = pool.accZafiPerShare;
+        uint256 accZfaiPerShare = pool.accZfaiPerShare;
         //uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         uint256 lpSupply = pool.totalLp;
 
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 zafiReward = multiplier.mul(zafiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            uint256 totalRewardFees = zafiReward.mul(1500).div(10000);
-            uint256 zafiRewardUsers = zafiReward.sub(totalRewardFees);
+            uint256 zfaiReward = multiplier.mul(zfaiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            uint256 totalRewardFees = zfaiReward.mul(1500).div(10000);
+            uint256 zfaiRewardUsers = zfaiReward.sub(totalRewardFees);
 
-            uint256 totalminted = zafi.totalMinted();
+            uint256 totalminted = zfai.totalMinted();
              
         if(totalminted >= 159000000000000000000000000){
          
-            accZafiPerShare = accZafiPerShare;
+            accZfaiPerShare = accZfaiPerShare;
 
             }else{
-                accZafiPerShare = accZafiPerShare.add(zafiRewardUsers.mul(1e12).div(lpSupply));
+                accZfaiPerShare = accZfaiPerShare.add(zfaiRewardUsers.mul(1e12).div(lpSupply));
             }
 
         }
   
-         return user.amount.mul(accZafiPerShare).div(1e12).sub(user.rewardDebt);
+         return user.amount.mul(accZfaiPerShare).div(1e12).sub(user.rewardDebt);
 
     }
 
-        // View function to see all locked ZAFIs on frontend.
-        function lockedZafi() external view returns (uint256) {
-            return totalZafiInPools;
+        // View function to see all locked ZFAIs on frontend.
+        function lockedZfai() external view returns (uint256) {
+            return totalZfaiInPools;
         }
 
     // Update reward variables for all pools. Be careful of gas spending! 
@@ -327,26 +327,26 @@ contract MasterZai is Ownable, ReentrancyGuard {
         }
 
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 zafiReward = multiplier.mul(zafiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        uint256 zfaiReward = multiplier.mul(zfaiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
     
-        uint256 totalRewardFees = zafiReward.mul(1500).div(10000);
+        uint256 totalRewardFees = zfaiReward.mul(1500).div(10000);
 
         //Total - 15% fees
-        uint256 zafiRewardUsers = zafiReward.sub(totalRewardFees);
+        uint256 zfaiRewardUsers = zfaiReward.sub(totalRewardFees);
        
-        uint256 totalminted = zafi.totalMinted();
+        uint256 totalminted = zfai.totalMinted();
        
         if(totalminted >= 159000000000000000000000000){
          
             if(currentDevFee > 0 || currentStaffFee > 0 || currentMarketingFee > 0){
 
-             safeZafiTransfer(devaddr,currentDevFee);
-             safeZafiTransfer(staffAddress,currentStaffFee);
-             safeZafiTransfer(marktAddress,currentMarketingFee);
+             safeZfaiTransfer(devaddr,currentDevFee);
+             safeZfaiTransfer(staffAddress,currentStaffFee);
+             safeZfaiTransfer(marktAddress,currentMarketingFee);
 
             }
   
-            pool.accZafiPerShare = pool.accZafiPerShare;
+            pool.accZfaiPerShare = pool.accZfaiPerShare;
 
             currentDevFee = 0;
             currentMarketingFee = 0;
@@ -354,21 +354,21 @@ contract MasterZai is Ownable, ReentrancyGuard {
 
         }else{
              
-             zafi.mint(address(this),zafiReward);
+             zfai.mint(address(this),zfaiReward);
 
                 if(currentDevFee > 1100000000000000000000){
                 
-                    safeZafiTransfer(devaddr,currentDevFee);
+                    safeZfaiTransfer(devaddr,currentDevFee);
                     currentDevFee = 0;
 
                 } else if(currentStaffFee > 1100000000000000000000){
                     
-                    safeZafiTransfer(staffAddress,currentStaffFee);
+                    safeZfaiTransfer(staffAddress,currentStaffFee);
                     currentStaffFee = 0;
 
                 } else if(currentMarketingFee > 2000000000000000000000){
                     
-                    safeZafiTransfer(marktAddress,currentMarketingFee);
+                    safeZfaiTransfer(marktAddress,currentMarketingFee);
                     currentMarketingFee = 0;
 
                 }
@@ -376,23 +376,23 @@ contract MasterZai is Ownable, ReentrancyGuard {
              }
 
             //1% dev fee
-            currentDevFee = currentDevFee.add(zafiReward.mul(blockDevFee).div(10000));
+            currentDevFee = currentDevFee.add(zfaiReward.mul(blockDevFee).div(10000));
 
             //4% staff fee
-            currentStaffFee = currentStaffFee.add(zafiReward.mul(blockStaffFee).div(10000));
+            currentStaffFee = currentStaffFee.add(zfaiReward.mul(blockStaffFee).div(10000));
             
             //10% marketing fee
-            currentMarketingFee = currentMarketingFee.add(zafiReward.div(10));
+            currentMarketingFee = currentMarketingFee.add(zfaiReward.div(10));
  
-            pool.accZafiPerShare = pool.accZafiPerShare.add(zafiRewardUsers.mul(1e12).div(pool.totalLp));
+            pool.accZfaiPerShare = pool.accZfaiPerShare.add(zfaiRewardUsers.mul(1e12).div(pool.totalLp));
             pool.lastRewardBlock = block.number;
 
    }         
         
 
-    // Deposit LP tokens to MasterZai for ZAFI allocation.
+    // Deposit LP tokens to MasterZai for ZFAI allocation.
     function deposit(uint256 _pid, uint256 _amount) public nonReentrant {
-        require(block.number >= startBlock, "MasterChef:: Can not deposit before farm start");
+       // require(block.number >= startBlock, "MasterChef:: Can not deposit before farm start");
 
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -402,30 +402,35 @@ contract MasterZai is Ownable, ReentrancyGuard {
         
 
         if (user.amount > 0) {
-            uint256 pending = user.amount.mul(pool.accZafiPerShare).div(1e12).sub(user.rewardDebt);
+            uint256 pending = user.amount.mul(pool.accZfaiPerShare).div(1e12).sub(user.rewardDebt);
             if(pending > 0) {
                 uint256 currentRewardBalance = remainRewards();
                 if(currentRewardBalance > 0) {
                     if(pending > currentRewardBalance) {
-                        safeZafiTransfer(msg.sender, currentRewardBalance);
+                        safeZfaiTransfer(msg.sender, currentRewardBalance);
                     } else {
-                        safeZafiTransfer(msg.sender, pending);
+                        safeZfaiTransfer(msg.sender, pending);
                     }
                 }
             }
         }
         
         if (_amount > 0) {
+            //Security Check in Tokens with Tax Fees
+            uint256 beforeDeposit = pool.lpToken.balanceOf(address(this));
+            pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+            uint256 afterDeposit = pool.lpToken.balanceOf(address(this));
+
+            _amount = afterDeposit.sub(beforeDeposit);
 
             if (pool.depositFeeBP > 0) {
 
                 uint256 depositFee = _amount.mul(pool.depositFeeBP).div(10000);
 
-                if (address(pool.lpToken) == address(zafi)) {
-                    totalZafiInPools = totalZafiInPools.add(_amount).sub(depositFee);   
+                if (address(pool.lpToken) == address(zfai)) {
+                    totalZfaiInPools = totalZfaiInPools.add(_amount).sub(depositFee);   
                 } 
 
-                pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
                 pool.lpToken.safeTransfer(feeAddress, depositFee);
 
                 user.amount = user.amount.add(_amount).sub(depositFee);
@@ -435,16 +440,14 @@ contract MasterZai is Ownable, ReentrancyGuard {
                 user.amount = user.amount.add(_amount);
                 pool.totalLp = pool.totalLp.add(_amount);
 
-                if (address(pool.lpToken) == address(zafi)) {
-                    totalZafiInPools = totalZafiInPools.add(_amount);
+                if (address(pool.lpToken) == address(zfai)) {
+                    totalZfaiInPools = totalZfaiInPools.add(_amount);
                 }
-
-                pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
                                 
            }
         }
 
-        user.rewardDebt = user.amount.mul(pool.accZafiPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accZfaiPerShare).div(1e12);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
@@ -461,32 +464,32 @@ contract MasterZai is Ownable, ReentrancyGuard {
         updatePool(_pid);      
         
 
-        uint256 pending = user.amount.mul(pool.accZafiPerShare).div(1e12).sub(user.rewardDebt);
+        uint256 pending = user.amount.mul(pool.accZfaiPerShare).div(1e12).sub(user.rewardDebt);
             if(pending > 0) {
                 uint256 currentRewardBalance = remainRewards();
                 //additional checkings
                 if(currentRewardBalance > 0) {
                     if(pending > currentRewardBalance) {
-                        safeZafiTransfer(msg.sender, currentRewardBalance);
+                        safeZfaiTransfer(msg.sender, currentRewardBalance);
                     } else {
-                        safeZafiTransfer(msg.sender, pending);
+                        safeZfaiTransfer(msg.sender, pending);
                     }
                 }
             }
             
         if(_amount > 0) {
                 
-             if (address(pool.lpToken) == address(zafi)) {
+             if (address(pool.lpToken) == address(zfai)) {
       
-                 uint256 zafiBal = zafi.balanceOf(address(this));
+                 uint256 zfaiBal = zfai.balanceOf(address(this));
 
-                 require(_amount <= zafiBal,'withdraw: not good');    
+                 require(_amount <= zfaiBal,'withdraw: not good');    
 
-                if(_amount >= totalZafiInPools){
-                    totalZafiInPools = 0;
+                if(_amount >= totalZfaiInPools){
+                    totalZfaiInPools = 0;
                 }else{
-                    require(totalZafiInPools >= _amount,'amount bigger than pool wut?');
-                    totalZafiInPools = totalZafiInPools.sub(_amount);
+                    require(totalZfaiInPools >= _amount,'amount bigger than pool wut?');
+                    totalZfaiInPools = totalZfaiInPools.sub(_amount);
                 }  
 
                 pool.lpToken.safeTransfer(address(msg.sender), _amount);
@@ -498,7 +501,7 @@ contract MasterZai is Ownable, ReentrancyGuard {
         
         user.amount = user.amount.sub(_amount);
         pool.totalLp = pool.totalLp.sub(_amount);
-        user.rewardDebt = user.amount.mul(pool.accZafiPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accZfaiPerShare).div(1e12);
         
         emit Withdraw(msg.sender, _pid, _amount);
 
@@ -512,17 +515,17 @@ contract MasterZai is Ownable, ReentrancyGuard {
         uint256 amount = user.amount;
         require(pool.totalLp >= amount, "EmergencyWithdraw: Pool total LP not enough");
 
-        if (address(pool.lpToken) == address(zafi)) {
+        if (address(pool.lpToken) == address(zfai)) {
           
-            uint256 zafiBal = zafi.balanceOf(address(this));
+            uint256 zfaiBal = zfai.balanceOf(address(this));
 
-            require(amount <= zafiBal,'withdraw: not good'); 
+            require(amount <= zfaiBal,'withdraw: not good'); 
 
-            if(amount >= totalZafiInPools){
-                totalZafiInPools = 0;
+            if(amount >= totalZfaiInPools){
+                totalZfaiInPools = 0;
             }else{
-                require(totalZafiInPools >= amount,'amount bigger than pool wut?');
-                totalZafiInPools = totalZafiInPools.sub(amount);
+                require(totalZfaiInPools >= amount,'amount bigger than pool wut?');
+                totalZfaiInPools = totalZfaiInPools.sub(amount);
             }  
 
             pool.lpToken.safeTransfer(address(msg.sender), amount);
@@ -540,24 +543,24 @@ contract MasterZai is Ownable, ReentrancyGuard {
     }
 
     function getPoolInfo(uint256 _pid) public view
-    returns(address lpToken, uint256 allocPoint, uint256 lastRewardBlock, uint256 accZafiPerShare, uint16 depositFeeBP, uint256 totalLp) {
+    returns(address lpToken, uint256 allocPoint, uint256 lastRewardBlock, uint256 accZfaiPerShare, uint16 depositFeeBP, uint256 totalLp) {
         return (address(poolInfo[_pid].lpToken),
              poolInfo[_pid].allocPoint,
              poolInfo[_pid].lastRewardBlock,
-             poolInfo[_pid].accZafiPerShare,
+             poolInfo[_pid].accZfaiPerShare,
              poolInfo[_pid].depositFeeBP,
              poolInfo[_pid].totalLp);
     }
 
-    // Safe zafi transfer function, just in case if rounding error causes pool to not have enough ZAFIs.
-    function safeZafiTransfer(address _to, uint256 _amount) internal {
-        if(zafi.balanceOf(address(this)) > totalZafiInPools){
-            //zafiBal = total zafi in MasterChef - total zafi in zafi pools, this will make sure that MasterChef never transfer rewards from deposited zafi pools
-            uint256 zafiBal = zafi.balanceOf(address(this)).sub(totalZafiInPools);
-            if (_amount >= zafiBal) {
-                zafi.transfer(_to, zafiBal);
+    // Safe zfai transfer function, just in case if rounding error causes pool to not have enough ZFAIs.
+    function safeZfaiTransfer(address _to, uint256 _amount) internal {
+        if(zfai.balanceOf(address(this)) > totalZfaiInPools){
+            //zfaiBal = total zfai in MasterChef - total zfai in zfai pools, this will make sure that MasterChef never transfer rewards from deposited zfai pools
+            uint256 zfaiBal = zfai.balanceOf(address(this)).sub(totalZfaiInPools);
+            if (_amount >= zfaiBal) {
+                zfai.transfer(_to, zfaiBal);
             } else if (_amount > 0) {
-                zafi.transfer(_to, _amount);
+                zfai.transfer(_to, _amount);
             }
         }
     }
@@ -575,10 +578,10 @@ contract MasterZai is Ownable, ReentrancyGuard {
     }
 
     // Pancake has to add hidden dummy pools in order to alter the emission, here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _zafiPerBlock) public onlyOwner {
+    function updateEmissionRate(uint256 _zfaiPerBlock) public onlyOwner {
         massUpdatePools();
-        emit EmissionRateUpdated(msg.sender, zafiPerBlock, _zafiPerBlock);
-        zafiPerBlock = _zafiPerBlock;
+        emit EmissionRateUpdated(msg.sender, zfaiPerBlock, _zfaiPerBlock);
+        zfaiPerBlock = _zfaiPerBlock;
     }
 
 }
