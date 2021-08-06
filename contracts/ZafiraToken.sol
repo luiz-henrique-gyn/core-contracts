@@ -2,13 +2,13 @@
 pragma solidity >=0.6.12;
 
 /*
- * Zaigar Finance 
+ * Zaigar Finance Farm Token
  */
  
 import './libs/BEP20.sol';
 
 
-// Zafira token with Governance 
+// ZafiraToken token with Governance 
 contract ZafiraToken is BEP20('Zafira', 'ZFAI') {
 
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (MasterChef).
@@ -119,9 +119,9 @@ contract ZafiraToken is BEP20('Zafira', 'ZFAI') {
         );
 
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "ZAIF::delegateBySig: invalid signature");
-        require(nonce == nonces[signatory]++, "ZAIF::delegateBySig: invalid nonce");
-        require(now <= expiry, "ZAIF::delegateBySig: signature expired");
+        require(signatory != address(0), "ZFAI::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "ZFAI::delegateBySig: invalid nonce");
+        require(now <= expiry, "ZFAI::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
@@ -151,7 +151,7 @@ contract ZafiraToken is BEP20('Zafira', 'ZFAI') {
         view
         returns (uint256)
     {
-        require(blockNumber < block.number, "ZAIF::getPriorVotes: not yet determined");
+        require(blockNumber < block.number, "ZFAI::getPriorVotes: not yet determined");
 
         uint32 nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -188,7 +188,7 @@ contract ZafiraToken is BEP20('Zafira', 'ZFAI') {
         internal
     {
         address currentDelegate = _delegates[delegator];
-        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying ZAIFs (not scaled);
+        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying ZFAIs (not scaled);
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
@@ -224,7 +224,7 @@ contract ZafiraToken is BEP20('Zafira', 'ZFAI') {
     )
         internal
     {
-        uint32 blockNumber = safe32(block.number, "ZAIF::_writeCheckpoint: block number exceeds 32 bits");
+        uint32 blockNumber = safe32(block.number, "ZFAI::_writeCheckpoint: block number exceeds 32 bits");
 
         if (nCheckpoints > 0 && checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber) {
             checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;

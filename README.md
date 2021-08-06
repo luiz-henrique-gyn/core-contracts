@@ -5,7 +5,7 @@ This repo is home to the Farming contracts for Zaigar Finance. Liquidity pools a
 https://zaigar.finance. 
 
 ## Updates to MasterChef
-As MasterZai is fork of Pancake's MasterChef, we want to be transparent about the updates that have been made: https://www.diffchecker.com/
+As MasterZai is fork of Pancake's MasterChef, we want to be transparent about the updates that have been made: https://www.diffchecker.com/9js3s9RK
 
 
 - Documented platform fees: Some other farms take a mining fee on new minted tokens without inform to the community, and also on top of the documented inflation. We wanted to be very transparent on that part and has all fees commented and inside the planned inflation. There's no additional token flooding the market. 
@@ -31,8 +31,8 @@ You can find the audit on this official link:
 
 #### Token Contracts
 - ZaifToken: [0x280C3Fc949b1a1D7a470067cA6F7b48b3CB219c5](https://bscscan.com/token/0x280C3Fc949b1a1D7a470067cA6F7b48b3CB219c5)
-- ZafiraToken: [](https://bscscan.com/token/)
+- ZafiraToken: [0x205cD59eEA8e8c5083f16D20e1050fD4a7d72037](https://bscscan.com/token/0x205cD59eEA8e8c5083f16D20e1050fD4a7d72037)
 
 #### Farm Contracts
-- MasterZai: [](https://bscscan.com/address/)
-- Timelock: [](https://bscscan.com/address/)
+- MasterZai: [0xec318Dedef59cfEC0Ffa0702D5846BC3f1e37aE4](https://bscscan.com/address/0xec318Dedef59cfEC0Ffa0702D5846BC3f1e37aE4)
+- Timelock: [0x7332379c8A2Dedde4697c42B3BeD6e71fA4A4Fe5](https://bscscan.com/address/0x7332379c8A2Dedde4697c42B3BeD6e71fA4A4Fe5)

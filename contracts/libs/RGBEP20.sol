@@ -457,7 +457,7 @@ contract RGBEP20 is Context, IBEP20, Ownable {
     //Burn Tokens that are not bought in presale
     function burn(uint256 _amount) public onlyOwner {     
         require(_tOwned[address(this)] >= _amount,'Burning more than the current tokens on contract!');
-        _transferToExcluded(address(this), BURN_ADDRESS, _amount);
+        _transferBothExcluded(address(this), BURN_ADDRESS, _amount);
         emit Transfer(address(this), BURN_ADDRESS, _amount);
         _tTotal = _tTotal.sub(_amount);
         _tOwned[address(this)].sub(_amount);

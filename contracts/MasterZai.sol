@@ -80,7 +80,7 @@ import "./ZafiraToken.sol";
 // import "@nomiclabs/buidler/console.sol";
 
 // MasterZai is the master of ZFAI 
-// He can make Zaif and he is a fair guy.
+// He can make ZFAI and he is a fair guy.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
 // will be transferred to a governance smart contract once ZFAI is sufficiently
@@ -118,7 +118,7 @@ contract MasterZai is Ownable, ReentrancyGuard {
         uint256 totalLp;            // Total Token in Pool
     }
 
-    // The ZFAI TOKEN!
+    // The Zafira TOKEN!
     ZafiraToken public zfai;
 
     //On Distribution Dev address.
@@ -215,13 +215,13 @@ contract MasterZai is Ownable, ReentrancyGuard {
     }
 
 
-    //actual Zaif left in MasterChef can be used in rewards, must excluding all in zfai pools
+    //actual Zfai left in MasterChef can be used in rewards, must excluding all in zfai pools
     //this function is for safety check 
     function remainRewards() public view returns (uint256) {
         return zfai.balanceOf(address(this)).sub(totalZfaiInPools);
     }
 
-    //All Zaifs that are not in pools or masterchef reward stack
+    //All Zfais that are not in pools or masterchef reward stack
     function getCirculatingSupply() external view returns(uint256) {
         uint256 tSupply = zfai.totalSupply();
         uint256 zfaiBalance = zfai.balanceOf(address(this));
@@ -571,7 +571,7 @@ contract MasterZai is Ownable, ReentrancyGuard {
         devaddr = _devaddr;
     }
 
-     //deposit fee in pools update
+     //update address that receive deposit fee in pools
      function setFeeAddress(address _feeAddress) public {
         require(msg.sender == feeAddress, "setFeeAddress: FORBIDDEN");
         feeAddress = _feeAddress;
