@@ -1,6 +1,6 @@
 # Zaigar Finance Farm
 
-This repo is home to the Farming contracts for Zaigar Finance. Liquidity pools are initialized and added as a staking token to the MasterZai contract. This MasterZai contract is also in control of the number of minted $ZAIF per block. As users stake LP and other tokens, the MasterZai distributes them according to the weight of rewards of a specific pool along with an accounts stake in that pool.
+This repo is home to the Farming contracts for Zaigar Finance. Liquidity pools are initialized and added as a staking token to the MasterZai contract. This MasterZai contract is also in control of the number of minted $ZFAI per block. As users stake LP and other tokens, the MasterZai distributes them according to the weight of rewards of a specific pool along with an accounts stake in that pool.
 
 https://zaigar.finance. 
 
