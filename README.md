@@ -28,7 +28,7 @@ BEP20RewardZaiV2 adds two admin functions which allow the pool rewards to be upd
 ### BSCMAINNET
 
 #### Our Contracts has been audited since day 1
-You can find the audit on this official link: 
+You can find the audit on this official link: https://zaigar.finance/ZaigarFinanceTechRateAudit.pdf
 
 #### Token Contracts
 - ZaifToken: [0x280C3Fc949b1a1D7a470067cA6F7b48b3CB219c5](https://bscscan.com/token/0x280C3Fc949b1a1D7a470067cA6F7b48b3CB219c5)
