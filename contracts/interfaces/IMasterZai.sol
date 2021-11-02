@@ -11,7 +11,7 @@ interface IMasterZai {
     function poolLength() external view returns (uint256);
     function checkPoolDuplicate(address _lpToken) external view;
     function getMultiplier(uint256 _from, uint256 _to) external view returns (uint256);
-    function pendingZai(uint256 _pid, address _user) external view returns (uint256);
+    function pendingZfai(uint256 _pid, address _user) external view returns (uint256);
     function massUpdatePools() external;
     function updatePool(uint256 _pid) external; // validatePool(_pid);
     function deposit(uint256 _pid, uint256 _amount) external; // validatePool(_pid);

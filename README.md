@@ -37,3 +37,7 @@ You can find the audit on this official link: https://zaigar.finance/ZaigarFinan
 #### Farm Contracts
 - MasterZai: [0xec318Dedef59cfEC0Ffa0702D5846BC3f1e37aE4](https://bscscan.com/address/0xec318Dedef59cfEC0Ffa0702D5846BC3f1e37aE4)
 - Timelock: [0x7332379c8A2Dedde4697c42B3BeD6e71fA4A4Fe5](https://bscscan.com/address/0x7332379c8A2Dedde4697c42B3BeD6e71fA4A4Fe5)
+- ZfaiVault: [0xd45DDf0EBe496b5F1fb6C16E49A45e43b80f90b9](https://bscscan.com/address/0xd45ddf0ebe496b5f1fb6c16e49a45e43b80f90b9)
+
+#### Game/Extra Contracts
+- ZaiOption: [0x13fb969fd1108a9e7e8f7a02a3f982ca3ef4d2ce](https://bscscan.com/address/0x13fb969fd1108a9e7e8f7a02a3f982ca3ef4d2ce)
